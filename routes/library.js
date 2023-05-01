@@ -1,7 +1,7 @@
 const express = require('express');
 const routes = express.Router();
 const Library = require('../models/library');
-const {validateToken,checkPermission}=require('../middlewares/auth');
+const {validateToken,checkPermission,checkBlockStatus}=require('../middlewares/auth');
 
 
 routes.get("/books",validateToken, async (req, res) => {
@@ -25,23 +25,23 @@ routes.post("/booker/add",validateToken,checkPermission(["admin"]), async (req, 
     }
 })
 
-routes.get("/book/:isbn",validateToken,checkPermission(["admin"]), async (req, res) => {
+routes.get("/book/:isbn",validateToken,checkBlockStatus, async (req, res) => {
     try {
         const isbn = req.params.isbn;
         const data = await Library.find({ ISBN: isbn });
-        if (!book) {
+        if (!data) {
             res.status(404).json({ message: "Book not found" });
           } else {  
-            res.status(200).json(book);
+            res.status(200).json(data);
           }
-        res.status(200).json(data);
+        // res.status(200).json(data);
     }
     catch (err) {
         res.json({ "error message": err });
     }
 })
 
-routes.delete("/book/:isbn", async (req, res) => {
+routes.delete("/book/:isbn",validateToken,checkPermission(["admin","librarian"]), async (req, res) => {
     try {
         const isbn = req.params.isbn;
         const deleted_book = Library.findOneAndDelete({ ISBN: isbn }).lean().exec();
@@ -52,7 +52,7 @@ routes.delete("/book/:isbn", async (req, res) => {
     }
 })
 
-routes.patch("/book/:isbn", async (req, res) => {
+routes.patch("/book/:isbn",validateToken,checkPermission(["admin","librarian"]), async (req, res) => {
     try {
         const isbn = req.params.isbn;
         const newData = req.body;

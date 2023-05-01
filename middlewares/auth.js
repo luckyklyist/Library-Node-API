@@ -1,4 +1,5 @@
 const User=require('../models/user');
+const Library=require('../models/library');
 const jwt=require('jsonwebtoken');
 
 function validateToken(req,res,next){
@@ -29,11 +30,20 @@ function checkPermission(permit){
         }
         next()
 
-    }
+    }}
 
-function checkBlockStatus(req,res,next){
+async function checkBlockStatus(req,res,next){
     try{
-        
+        const isbn=req.params.isbn;
+        const book=await Library.findOne({"ISBN":isbn});
+        const user=await User.findOne({"_id":req.user._id});
+        const {email}=user;
+        if (book.blocked_to.includes(email)){
+            res.status(403).send("You dont have permissions ")
+        }
+        else{
+            next()
+        }
     }
     catch(err){
         res.send(err)
@@ -41,4 +51,4 @@ function checkBlockStatus(req,res,next){
 
 }
 
-module.exports={validateToken,checkPermission}
+module.exports={validateToken,checkPermission,checkBlockStatus};
