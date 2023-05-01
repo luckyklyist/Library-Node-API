@@ -52,13 +52,4 @@ routes.post('/login',async(req,res)=>{
     }
 })
 
-// routes.post('/login',async(req,res)=>{
-//     try{
-
-//     }
-//     catch(err){
-//         console.log(err)
-//     }
-// })
-
 module.exports=routes;
