@@ -1,8 +1,10 @@
 const express = require('express');
 const routes = express.Router();
 const Library = require('../models/library');
+const {validateToken,checkPermission}=require('../middlewares/auth');
 
-routes.get("/books", async (req, res) => {
+
+routes.get("/books",validateToken, async (req, res) => {
     try {
         const data = await Library.find();
         res.status(200).json(data);
@@ -12,7 +14,7 @@ routes.get("/books", async (req, res) => {
     }
 });
 
-routes.post("/booker/add", async (req, res) => {
+routes.post("/booker/add",validateToken,checkPermission(["admin"]), async (req, res) => {
     try {
         console.log(req.body);
         const data = new Library(req.body);
@@ -23,13 +25,13 @@ routes.post("/booker/add", async (req, res) => {
     }
 })
 
-routes.get("/book/:isbn", async (req, res) => {
+routes.get("/book/:isbn",validateToken,checkPermission(["admin"]), async (req, res) => {
     try {
         const isbn = req.params.isbn;
         const data = await Library.find({ ISBN: isbn });
         if (!book) {
             res.status(404).json({ message: "Book not found" });
-          } else {
+          } else {  
             res.status(200).json(book);
           }
         res.status(200).json(data);

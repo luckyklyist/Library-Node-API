@@ -17,6 +17,10 @@ const librarySchema = new Schema({
     releaseDate: {
         type: Date,
         default: Date.now()
+    },
+    blocked_to:{
+        type:Array,
+        default:[]
     }
 }, { timestamps: true });
 
